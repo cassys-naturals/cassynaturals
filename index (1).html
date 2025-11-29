@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cassy's Naturals — Landing</title>
+  <style>
+    :root{--green:#2f5b44;--muted:#efe6dc;--card:#ffffff;--radius:14px}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; margin:0; background:var(--muted); color:#163223}
+    /* Header styling */
+    header{
+        background-image:url('images/header-bg.jpg'); 
+        background-size:cover;
+        background-position:center;
+        padding:28px 20px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        height: auto; 
+    }
+    .logo-container{ 
+        display:flex;
+        align-items:center;
+        gap:12px;
+    }
+    /* If you host the logo image externally, update the src here */
+    .logo-container img{ 
+        height:60px; 
+        width: auto;
+    }
+    .logo-text{ 
+        line-height: 1.2;
+    }
+    .logo-text .brand-name{
+        font-weight:800;
+        color:var(--green);
+        font-size: 18px; 
+    }
+    .logo-text .brand-slogan{
+        font-size:14px; 
+        color:#144;
+    }
+
+    nav{display:flex;gap:18px;font-weight:600}
+    nav a{color:var(--green);text-decoration:none;opacity:.9}
+    nav a.disabled{opacity:.45;pointer-events:none}
+
+    .hero{display:flex;gap:20px;align-items:center;padding:48px 20px}
+    .hero-left{flex:1}
+    .hero h1{font-size:40px;margin:0 0 12px}
+    .hero p.lead{margin:0 0 20px;color:#27503f}
+    .hero-right{flex:1;display:flex;justify-content:flex-end} 
+    /* If you host the Afro Lady image externally, update the src in the HTML */
+    .hero-right img{
+        max-width:480px; 
+        border-radius:8px;
+        height: auto; 
+    }
+
+    .products-section{background:#fff;border-top-left-radius:40px;border-top-right-radius:40px;padding:36px 18px;margin-top:20px}
+    .section-title{text-align:center;font-size:28px;margin:6px 0 22px;color:var(--green);font-weight:700}
+    .products-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1100px;margin:0 auto}
+    .card{background:var(--card);padding:18px;border-radius:12px;text-align:center;box-shadow:0 6px 18px rgba(16,24,20,.04)}
+    /* Important: This ensures images from Google Drive links display correctly */
+    .card img{max-width:100%;height:140px;object-fit:contain} 
+    .card h4{margin:12px 0 6px}
+    .price{color:var(--green);font-weight:700}
+
+    .testimonial{max-width:1000px;margin:28px auto 0;background:#fff;padding:16px;border-radius:12px;display:flex;gap:12px;align-items:center}
+    .testimonial img{width:56px;height:56px;border-radius:50%; object-fit: cover;}
+    .testimonial .text{font-size:14px}
+    .btn{display:inline-block;padding:12px 18px;border-radius:12px;background:var(--green);color:#fff;text-decoration:none;font-weight:700}
+    .btn.ghost{background:transparent;border:2px solid var(--green);color:var(--green)}
+
+    /* Order page styles (hash routing - #order) */
+    .order-page{display:none;padding:28px}
+    .order-wrap{max-width:720px;margin:0 auto;background:#fff;padding:20px;border-radius:12px}
+    .product-row{display:flex;align-items:center;gap:12px;border-bottom:1px solid #eee;padding:12px 0}
+    /* Important: Ensures order list images display correctly */
+    .product-row img{width:72px;height:72px;object-fit:contain;border-radius:8px} 
+    .product-info{flex:1}
+    .product-qty{width:120px;text-align:right}
+    .input,textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid #ddd}
+    footer{padding:18px;text-align:center;color:#6b6b6b;font-size:13px}
+
+    /* responsive */
+    @media(max-width:1200px){
+        .hero-right img{max-width:380px;} 
+    }
+    @media(max-width:900px){
+      .products-grid{grid-template-columns:repeat(2,1fr)}
+      .hero{flex-direction:column}
+      .hero-right{justify-content:center} 
+      .hero-right img{max-width:300px}
+    }
+    @media(max-width:520px){
+      .products-grid{grid-template-columns:1fr}
+      .hero h1{font-size:28px}
+      nav{display:none}
+      .logo-container { 
+          justify-content: center;
+          width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo-container">
+      <img src="images/cassy_logo.jpg" alt="Cassy's Naturals Logo"/>
+      <div class="logo-text">
+        <div class="brand-name">CASSY'S</div>
+        <div class="brand-slogan">NATURALS</div>
+      </div>
+    </div>
+    
+    <nav>
+      <a href="#home">HOME</a>
+      <a href="#products" class="disabled">PRODUCTS</a>
+      <a href="#" class="disabled">ABOUT</a>
+      <a href="#" class="disabled">CONTACT</a>
+    </nav>
+  </header>
+
+  <main id="home">
+    <section class="hero">
+      <div class="hero-left">
+        <h1>WELCOME TO<br>CASSY'S NATURALS</h1>
+        <p class="lead">Discover the best products for your hair</p>
+        <a href="#order" class="btn" id="buyNowMain">BUY NOW</a>
+      </div>
+      <div class="hero-right">
+        <img src="images/afro-hair-pic.jpg" alt="Afro Hair Model">
+      </div>
+    </section>
+
+    <section class="products-section" id="products">
+      <h2 class="section-title">OUR PRODUCTS</h2>
+      <div class="products-grid">
+        </div>
+
+      <div class="testimonial">
+        <img src="images/hair_growth_oil.jpg" alt="customer">
+        <div class="text">★★★★★ &nbsp; I first saw her ads on Tiktok and honestly thought she was exaggerating. But after using her products for two months I can confidently say they are worth every penny!!</div>
+        <div style="margin-left:auto"><a class="btn ghost" href="#order">BUY NOW!</a></div>
+      </div>
+    </section>
+  </main>
+
+  <section id="order" class="order-page">
+    <div class="order-wrap">
+      <h2 style="margin-top:0">Place your order</h2>
+      <p style="margin:0 0 18px">Select quantities for the products you want, enter your name and delivery address, then tap <strong>Order Now</strong> to send the order to WhatsApp.</p>
+
+      <div id="productsList">
+      </div>
+
+      <div style="margin-top:14px">
+        <label>Your Full Name</label>
+        <input type="text" id="customerName" class="input" placeholder="Enter your full name" required>
+      </div>
+      
+      <div style="margin-top:14px">
+        <label>Delivery Address</label>
+        <textarea id="address" rows="3" class="input" placeholder="Enter your full delivery address"></textarea>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:12px;align-items:center">
+        <button class="btn" id="orderNow">ORDER NOW</button>
+        <button class="btn ghost" id="backHome">Back to Home</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © <span id="year"></span> Cassy's Naturals
+  </footer>
+
+  <script>
+    // --- CONFIGURATION ---
+    const WHATSAPP_NUMBER = '2349112786352'; // Your friend's WhatsApp business number
+    const LS_KEY = 'CASSY_NATURALS_PRODUCTS'; // Key must match admin.html
+
+    // --- PRODUCT LOGIC (READ FROM LOCAL STORAGE) ---
+    function getProductsFromStorage() {
+      let products = localStorage.getItem(LS_KEY);
+      // Fallback: If the Admin hasn't saved any data yet, use a static default set.
+      if (!products) {
+        return [
+          {id:'oil', title:'Hair Growth Oil', price:7000, img:'images/hair_growth_oil.jpg'},
+          {id:'herbs', title:'Mixed Herbs', price:5000, img:'images/mixed_herbs.jpg'},
+          {id:'butter', title:'Hair Butter', price:4000, img:'images/hair_butter.jpg'},
+          {id:'conditioner', title:'Leave In Conditioner', price:3000, img:'images/leave_in_conditioner.jpg'}
+        ];
+      }
+      return JSON.parse(products);
+    }
+    
+    // Get the live list of products
+    const PRODUCTS = getProductsFromStorage();
+
+
+    // --- RENDERING FUNCTIONS ---
+    // Renders the product cards on the main page from the live data
+    function renderProductCards() {
+        const productsGrid = document.querySelector('.products-grid');
+        productsGrid.innerHTML = '';
+        
+        if (PRODUCTS.length === 0) {
+             productsGrid.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No products currently listed. Please check the Admin Dashboard.</p>';
+             return;
+        }
+
+        PRODUCTS.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <img src="${p.img}" alt="${p.title}">
+                <h4>${p.title}</h4>
+                <div class="price">₦${p.price.toLocaleString()}</div>
+            `;
+            productsGrid.appendChild(card);
+        });
+    }
+
+    // Renders the product list on the order page for checkout
+    function renderOrderList() {
+        const productsList = document.getElementById('productsList');
+        productsList.innerHTML = '';
+        
+        PRODUCTS.forEach(p => {
+          const row = document.createElement('div');
+          row.className = 'product-row';
+          row.innerHTML = `
+            <img src="${p.img}" alt="${p.title}">
+            <div class="product-info">
+              <div style="font-weight:700">${p.title}</div>
+              <div style="color:var(--green);font-weight:700">₦${p.price.toLocaleString()}</div>
+            </div>
+            <div class="product-qty">
+              <label style="font-size:12px;display:block;text-align:right">Qty</label>
+              <select data-id="${p.id}" class="qty-select">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+          `;
+          productsList.appendChild(row);
+        });
+    }
+
+    // --- INITIALIZATION & ROUTING ---
+    document.getElementById('year').textContent = new Date().getFullYear();
+    renderProductCards();
+    renderOrderList();
+    
+
+    function showRoute(){
+      const hash = location.hash || '#home';
+      document.querySelectorAll('.order-page').forEach(el=>el.style.display='none');
+      document.querySelectorAll('main, header, .products-section').forEach(el=>el.style.display='block');
+
+      if(hash === '#order'){
+        document.querySelectorAll('main, header, .products-section').forEach(el=>el.style.display='none');
+        document.querySelector('#order').style.display='block';
+        // Re-render the order list just in case products were updated while on the home page
+        renderOrderList(); 
+        window.scrollTo({top:0,behavior:'smooth'});
+      } else {
+        document.querySelector('#home').scrollIntoView({behavior:'smooth'});
+      }
+    }
+    window.addEventListener('hashchange', showRoute);
+    showRoute();
+
+    document.getElementById('buyNowMain').addEventListener('click', (e)=>{
+      e.preventDefault();
+      location.hash = '#order';
+    });
+    document.getElementById('backHome').addEventListener('click', ()=>{ location.hash = '#home'; });
+
+    // --- WHATSAPP ORDER GENERATION ---
+    document.getElementById('orderNow').addEventListener('click', ()=>{
+      const qtySelects = document.querySelectorAll('.qty-select');
+      const name = document.getElementById('customerName').value.trim(); 
+      const address = document.getElementById('address').value.trim();
+      let lines = [];
+      let total = 0;
+      
+      if(!name){ alert('Please enter your full name to proceed with the order.'); return; }
+      
+      // Look up product details from the live PRODUCTS array
+      qtySelects.forEach(s => {
+        const q = parseInt(s.value,10);
+        if(q>0){
+          const id = s.getAttribute('data-id');
+          // Find the product in the live list (which comes from the Admin's Local Storage)
+          const p = PRODUCTS.find(x=>x.id===id);
+          if (p) { 
+             lines.push(`${p.title} x ${q} = ₦${(p.price*q).toLocaleString()}`);
+             total += p.price*q;
+          }
+        }
+      });
+      if(lines.length===0){ alert('Please select at least one product quantity.'); return; }
+      if(!address){ if(!confirm('No delivery address entered. Continue and send WhatsApp message without address?')) return; }
+
+      let message = `New order from website for ${encodeURIComponent(name)}:%0A%0A`; 
+      message += lines.join('%0A');
+      message += `%0A%0ATotal: ₦${total.toLocaleString()}%0A`;
+      if(address) message += `%0ADelivery address: ${encodeURIComponent(address)}%0A`;
+      message += `%0AThanks!`;
+
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+      window.open(waUrl, '_blank');
+    });
+  </script>
+</body>
+</html>

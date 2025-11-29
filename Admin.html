@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cassy's Naturals — Admin</title>
+  <style>
+    :root{--green:#2f5b44;--muted:#efe6dc;--card:#ffffff;--radius:14px;--red:#c0392b;--blue:#2980b9;--orange:#f39c12}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; margin:0; background:var(--muted); color:#163223}
+    .container{max-width:400px;margin:100px auto;padding:20px;background:var(--card);border-radius:var(--radius);box-shadow:0 6px 18px rgba(16,24,20,.1)}
+    h2{text-align:center;color:var(--green);margin-bottom:20px}
+    .input{width:100%;padding:10px;margin-bottom:15px;border-radius:8px;border:1px solid #ddd}
+    .btn{display:block;width:100%;padding:12px 18px;border-radius:12px;background:var(--green);color:#fff;text-decoration:none;font-weight:700;border:none;cursor:pointer}
+    .btn.alt{background:var(--blue);margin-top:10px}
+    .btn.logout{background:var(--red)}
+    .btn:hover{opacity:0.9}
+    .error-msg{color:var(--red);text-align:center;margin-top:10px}
+    
+    /* Admin Dashboard Styles */
+    #dashboard{display:none;max-width:900px;margin:20px auto;padding:20px}
+    .admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;background:var(--green);color:#fff;padding:15px;border-radius:var(--radius)}
+    .admin-header h1{margin:0;font-size:1.5em}
+    .admin-header button{background:var(--red);color:#fff;border:none;padding:8px 15px;border-radius:8px;cursor:pointer}
+    
+    /* Product Forms and Table */
+    .form-section{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,.05)}
+    .form-section h3{margin-top:0;border-bottom:1px solid #eee;padding-bottom:10px}
+    .products-table{width:100%;border-collapse:collapse;margin-top:20px}
+    .products-table th,.products-table td{padding:10px;border:1px solid #ddd;text-align:left}
+    .products-table th{background:var(--blue);color:#fff}
+    .edit-btn,.delete-btn{padding:5px 10px;border:none;border-radius:5px;cursor:pointer;margin-right:5px}
+    .edit-btn{background:var(--green);color:#fff}
+    .delete-btn{background:var(--red);color:#fff}
+    
+    /* Image Preview */
+    .image-preview{max-width:150px;max-height:150px;margin:10px auto;border:1px solid #ddd;display:block}
+    .file-input-container{padding: 15px; text-align: center; margin-bottom: 15px;}
+    .file-input-container small{display:block;margin-top:5px;color:#777;}
+  </style>
+</head>
+<body>
+  
+  <div id="setup-screen" class="container" style="display:none;">
+    <h2 id="setup-title">Set Admin Credentials</h2>
+    <input type="text" id="setup-username" class="input" placeholder="Choose a Username">
+    <input type="password" id="setup-password" class="input" placeholder="Choose Primary Password">
+    <input type="password" id="setup-backup-password" class="input" placeholder="Choose Backup Password">
+    <button class="btn" onclick="saveCredentials()">Save Credentials</button>
+    <div id="setup-error" class="error-msg" style="display:none;"></div>
+  </div>
+
+  <div id="login-screen" class="container" style="display:none;">
+    <h2>Admin Login</h2>
+    <input type="text" id="login-username" class="input" placeholder="Username">
+    <input type="password" id="login-password" class="input" placeholder="Password">
+    <button class="btn" onclick="login()">Log In</button>
+    <button class="btn alt" onclick="showBackupLogin()">Use Backup Password</button>
+    <div id="login-error" class="error-msg" style="display:none;"></div>
+  </div>
+
+  <div id="dashboard">
+    <div class="admin-header">
+      <h1>Product Management Dashboard</h1>
+      <div>
+        <button style="background:var(--orange)" onclick="showSetupScreen(true)">Change Password</button>
+        <button class="btn logout" onclick="logout()">Log Out</button>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 id="form-title">Add New Product</h3>
+      <input type="hidden" id="product-id">
+      
+      <div class="file-input-container">
+        <img id="image-preview" class="image-preview" style="display:none;" alt="Image Preview">
+        <small>Preview is only for reference and won't always work with Google Drive links.</small>
+      </div>
+      
+      <label>Product Name</label>
+      <input type="text" id="product-title" class="input" placeholder="e.g., Hair Growth Oil">
+      <label>Price (₦)</label>
+      <input type="number" id="product-price" class="input" placeholder="e.g., 7000">
+      <label>Image URL (Paste Google Drive Public Link Here)</label>
+      <input type="text" id="product-img" class="input" placeholder="https://drive.google.com/file/d/LongID...">
+      <small style="display:block; margin-bottom:15px; color:var(--red);">*MUST be a public link from Google Drive or another host.</small>
+      <button class="btn" onclick="saveProduct()">Save Product</button>
+    </div>
+
+    <div class="form-section">
+      <h3>Current Products</h3>
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Price (₦)</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="products-list-admin">
+          </tbody>
+      </table>
+      <small style="margin-top:10px;display:block;">*Changes made here will immediately update the customer website.</small>
+    </div>
+  </div>
+
+  <script>
+    // --- Configuration ---
+    const LS_KEY = 'CASSY_NATURALS_PRODUCTS';
+    const LS_CREDS = 'CASSY_NATURALS_CREDS'; 
+
+    // --- Product Initialization (Default data if none exists) ---
+    const DEFAULT_PRODUCTS = [
+      {id:'oil', title:'Hair Growth Oil', price:7000, img:'images/hair_growth_oil.jpg'},
+      {id:'herbs', title:'Mixed Herbs', price:5000, img:'images/mixed_herbs.jpg'},
+      {id:'butter', title:'Hair Butter', price:4000, img:'images/hair_butter.jpg'},
+      {id:'conditioner', title:'Leave In Conditioner', price:3000, img:'images/leave_in_conditioner.jpg'}
+    ];
+    
+    // --- Utility Functions ---
+    function getProducts() {
+      let products = localStorage.getItem(LS_KEY);
+      if (!products) {
+        products = DEFAULT_PRODUCTS;
+        localStorage.setItem(LS_KEY, JSON.stringify(products));
+      } else {
+        products = JSON.parse(products);
+      }
+      return products;
+    }
+
+    function saveProducts(products) {
+      localStorage.setItem(LS_KEY, JSON.stringify(products));
+      renderProductsTable();
+    }
+
+    function generateId(title) {
+        return title.toLowerCase().replace(/[^a-z0-9]+/g, '_').substring(0, 20) + '_' + Date.now();
+    }
+    
+    function updateImagePreview(imgUrl) {
+        const preview = document.getElementById('image-preview');
+        // This attempts to show a preview but notes that Google Drive links often fail to preview correctly
+        // The URL MUST still be pasted for the customer site to work.
+        if (imgUrl.includes('http')) {
+            preview.src = imgUrl;
+            preview.style.display = 'block';
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+
+
+    // --- Admin Panel Functions ---
+    function renderProductsTable() {
+      const products = getProducts();
+      const tbody = document.getElementById('products-list-admin');
+      tbody.innerHTML = '';
+
+      products.forEach(p => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+          <td>${p.id.substring(0, 6)}...</td>
+          <td>${p.title}</td>
+          <td>₦${p.price.toLocaleString()}</td>
+          <td>
+            <button class="edit-btn" onclick="editProduct('${p.id}')">Edit</button>
+            <button class="delete-btn" onclick="deleteProduct('${p.id}')">Delete</button>
+          </td>
+        `;
+      });
+    }
+    
+    function saveProduct() {
+      const id = document.getElementById('product-id').value;
+      const title = document.getElementById('product-title').value.trim();
+      const price = parseInt(document.getElementById('product-price').value, 10);
+      const img = document.getElementById('product-img').value.trim();
+
+      if (!title || isNaN(price) || price <= 0 || !img) {
+        alert('Please fill in all product details correctly.');
+        return;
+      }
+      if (!img.startsWith('http')) {
+        alert('The Image URL must be a full web link (starting with http or https). Please paste the full Google Drive Public Link.');
+        return;
+      }
+      
+      let products = getProducts();
+      
+      if (id) {
+        // Edit existing product
+        const index = products.findIndex(p => p.id === id);
+        if (index !== -1) {
+          products[index] = { id: id, title, price, img };
+          document.getElementById('form-title').textContent = 'Add New Product';
+        }
+      } else {
+        // Add new product
+        const newId = generateId(title);
+        products.push({ id: newId, title, price, img });
+      }
+      
+      // Reset form
+      resetProductForm();
+      saveProducts(products);
+      alert('Product saved successfully! The customer site is now updated.');
+    }
+    
+    function editProduct(productId) {
+      const products = getProducts();
+      const product = products.find(p => p.id === productId);
+
+      if (product) {
+        document.getElementById('product-id').value = product.id;
+        document.getElementById('product-title').value = product.title;
+        document.getElementById('product-price').value = product.price;
+        document.getElementById('product-img').value = product.img;
+        document.getElementById('form-title').textContent = 'Editing: ' + product.title;
+        updateImagePreview(product.img);
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      }
+    }
+    
+    function deleteProduct(productId) {
+      if (!confirm('Are you sure you want to delete this product? This change will immediately affect the customer site.')) return;
+      
+      let products = getProducts();
+      products = products.filter(p => p.id !== productId);
+      saveProducts(products);
+      alert('Product deleted.');
+    }
+    
+    function resetProductForm() {
+        document.getElementById('product-id').value = '';
+        document.getElementById('product-title').value = '';
+        document.getElementById('product-price').value = '';
+        document.getElementById('product-img').value = '';
+        document.getElementById('image-preview').style.display = 'none';
+        document.getElementById('form-title').textContent = 'Add New Product';
+    }
+
+    // --- Authentication Functions ---
+    function getCredentials() {
+        const creds = localStorage.getItem(LS_CREDS);
+        return creds ? JSON.parse(creds) : null;
+    }
+
+    function saveCredentials() {
+        const user = document.getElementById('setup-username').value.trim();
+        const pass = document.getElementById('setup-password').value.trim();
+        const backupPass = document.getElementById('setup-backup-password').value.trim();
+        const errorDiv = document.getElementById('setup-error');
+
+        if (user.length < 3 || pass.length < 6 || backupPass.length < 6) {
+            errorDiv.textContent = 'Username must be 3+ chars, passwords 6+ chars.';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        const creds = { username: user, pass: pass, backupPass: backupPass };
+        localStorage.setItem(LS_CREDS, JSON.stringify(creds));
+        alert('Credentials saved successfully!');
+        showLoginScreen();
+    }
+
+    function login(isBackup = false) {
+        const creds = getCredentials();
+        if (!creds) {
+            showSetupScreen();
+            return;
+        }
+        
+        const userField = document.getElementById('login-username');
+        const passField = document.getElementById('login-password');
+        const errorDiv = document.getElementById('login-error');
+        
+        const enteredUser = userField.value.trim();
+        const enteredPass = passField.value.trim();
+        
+        let success = false;
+        
+        // Primary login check
+        if (!isBackup && enteredUser === creds.username && enteredPass === creds.pass) {
+            success = true;
+        } 
+        // Backup login check (only requires password)
+        else if (isBackup && enteredPass === creds.backupPass) {
+             success = true;
+        } 
+        // Allow primary login details even if backup flow was activated (for user convenience)
+        else if (enteredUser === creds.username && enteredPass === creds.pass) {
+            success = true;
+        }
+
+
+        if (success) {
+            localStorage.setItem('adminLoggedIn', 'true');
+            showDashboard();
+            userField.value = '';
+            passField.value = '';
+        } else {
+            errorDiv.textContent = 'Invalid username or password.';
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 3000);
+        }
+    }
+    
+    function showBackupLogin() {
+        const userField = document.getElementById('login-username');
+        const passField = document.getElementById('login-password');
+        
+        userField.style.display = 'none'; // Hide username field for backup password simplicity
+        passField.placeholder = 'Enter Backup Password';
+        document.querySelector('#login-screen .btn.alt').style.display = 'none';
+        document.querySelector('#login-screen .btn').onclick = function() { login(true); };
+        document.querySelector('#login-screen .btn').textContent = 'Log In with Backup';
+        
+        passField.value = '';
+    }
+
+    function logout() {
+      localStorage.removeItem('adminLoggedIn');
+      showLoginScreen();
+    }
+    
+    function showDashboard() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('setup-screen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      renderProductsTable();
+      resetProductForm();
+    }
+
+    function showSetupScreen(isChange = false) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('setup-screen').style.display = 'block';
+        
+        const creds = getCredentials();
+        
+        document.getElementById('setup-title').textContent = isChange ? 'Change Admin Credentials' : 'Set Admin Credentials';
+        
+        if (creds && isChange) {
+            document.getElementById('setup-username').value = creds.username;
+        } else {
+             document.getElementById('setup-username').value = '';
+        }
+    }
+
+    function showLoginScreen() {
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'block';
+    }
+
+    // Check login status on page load
+    window.onload = function() {
+        if (!getCredentials()) {
+            showSetupScreen();
+        } else if (localStorage.getItem('adminLoggedIn') === 'true') {
+            showDashboard();
+        } else {
+            showLoginScreen();
+        }
+    };
+  </script>
+</body>
+</html>
